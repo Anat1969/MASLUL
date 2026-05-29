@@ -63,7 +63,7 @@ app.post('/api/gemini/parse', async (req, res) => {
 `;
 
     const response = await axios.post(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
       {
         contents: [{ parts: [{ text }] }],
         systemInstruction: { parts: [{ text: systemPrompt }] },
