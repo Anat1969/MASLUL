@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { Trip, POI, Day, POICategory } from '../../types/routes';
+import type { Trip, POI, POICategory } from '../../types/routes';
 import TabNavigation from './TabNavigation';
 import Itinerary from './Itinerary';
 import AIParser from './AIParser';
@@ -11,7 +11,6 @@ interface SidebarProps {
   trips: Trip[];
   activeDayFilter: number;
   activeCategoryFilter: POICategory | 'all';
-  isSidebarCollapsed: boolean;
   mobileActiveView: 'journal' | 'map';
   isLibraryOpen: boolean;
   errorMsg: string;
@@ -20,13 +19,11 @@ interface SidebarProps {
   onSetActiveTrip: (trip: Trip) => void;
   onSetActiveDayFilter: (day: number) => void;
   onSetActiveCategoryFilter: (category: POICategory | 'all') => void;
-  onSetSidebarCollapsed: (collapsed: boolean) => void;
   onSetLibraryOpen: (open: boolean) => void;
   onClearError: () => void;
   onClearSuccess: () => void;
   onDeleteTrip: (tripId: string) => void;
   onSaveTrip: (trip: Trip) => Promise<string>;
-  onUpdateTrip: (tripId: string, updates: Partial<Trip>) => Promise<string>;
   onAddPOI: (tripId: string, poi: POI) => Promise<string>;
   onUpdatePOI: (tripId: string, poiId: string, updates: Partial<POI>) => Promise<string>;
   onRemovePOI: (tripId: string, poiId: string) => Promise<string>;
@@ -40,7 +37,6 @@ export default function Sidebar({
   trips,
   activeDayFilter,
   activeCategoryFilter,
-  isSidebarCollapsed,
   mobileActiveView,
   isLibraryOpen,
   errorMsg,
@@ -49,13 +45,11 @@ export default function Sidebar({
   onSetActiveTrip,
   onSetActiveDayFilter,
   onSetActiveCategoryFilter,
-  onSetSidebarCollapsed,
   onSetLibraryOpen,
   onClearError,
   onClearSuccess,
   onDeleteTrip,
   onSaveTrip,
-  onUpdateTrip,
   onAddPOI,
   onUpdatePOI,
   onRemovePOI,
@@ -66,16 +60,12 @@ export default function Sidebar({
   const [activeTab, setActiveTab] = useState<'itinerary' | 'ai-parse' | 'add-place'>('itinerary');
   const [editingPoiId, setEditingPoiId] = useState<string | null>(null);
 
-  const handlePoiFocus = (poi: POI) => {
-    // This will be handled by the parent component
-  };
-
   return (
     <>
       <aside
         className={`w-full lg:w-[460px] bg-white border-l border-stone-200 flex flex-col h-full z-20 shadow-2xl transition-all duration-300 relative ${
-          isSidebarCollapsed ? 'lg:w-0 lg:opacity-0 lg:overflow-hidden' : ''
-        } ${mobileActiveView === 'map' ? 'hidden lg:flex' : 'flex'}`}
+          mobileActiveView === 'map' ? 'hidden lg:flex' : 'flex'
+        }`}
       >
         {/* Header */}
         <div className="p-6 border-b border-stone-100 bg-stone-50/50 flex items-center justify-between">
@@ -160,7 +150,7 @@ export default function Sidebar({
               activeCategoryFilter={activeCategoryFilter}
               onSetActiveDayFilter={onSetActiveDayFilter}
               onSetActiveCategoryFilter={onSetActiveCategoryFilter}
-              onPoiFocus={handlePoiFocus}
+              onPoiFocus={() => {}}
               onStartEditPOI={setEditingPoiId}
               onRemovePOI={onRemovePOI}
               onError={onError}
@@ -182,8 +172,6 @@ export default function Sidebar({
             <POIForm
               activeTrip={activeTrip}
               editingPoiId={editingPoiId}
-              onSaveTrip={onSaveTrip}
-              onSetActiveTrip={onSetActiveTrip}
               onAddPOI={onAddPOI}
               onUpdatePOI={onUpdatePOI}
               onError={onError}

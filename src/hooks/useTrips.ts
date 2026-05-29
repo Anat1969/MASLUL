@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { Trip, Day, POI } from '../types/routes';
+import type { Trip, POI, Day } from '../types/routes';
 import { storageService } from '../services/storageService';
 
 export function useTrips(initialTrips?: Trip[]) {

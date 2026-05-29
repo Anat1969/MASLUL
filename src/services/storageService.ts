@@ -1,5 +1,5 @@
 import Dexie from 'dexie';
-import { Trip, POI } from '../types/routes';
+import type { Trip, POI } from '../types/routes';
 
 class RouteAIDB extends Dexie {
   trips!: Dexie.Table<Trip, string>;

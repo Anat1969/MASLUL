@@ -1,14 +1,13 @@
 import { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import type { Trip } from '../../types/routes';
+import type { Trip, POICategory } from '../../types/routes';
 
 interface MapProps {
   activeTrip: Trip;
   activeDayFilter: number;
-  activeCategoryFilter: 'all' | 'hotel' | 'restaurant' | 'attraction' | 'waypoint';
+  activeCategoryFilter: POICategory | 'all';
   mapInstanceRef: React.MutableRefObject<L.Map | null>;
-  onPoiFocus?: () => void;
 }
 
 const getCategoryStyles = (category: string) => {
@@ -29,7 +28,6 @@ export default function Map({
   activeDayFilter,
   activeCategoryFilter,
   mapInstanceRef,
-  onPoiFocus,
 }: MapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const markersRef = useRef<Record<string, L.Marker>>({});

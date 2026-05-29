@@ -1,12 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import type { Trip, POI, POICategory } from '../../types/routes';
-import nominatimService from '../../services/nominatimService';
+import { geocodeLocation } from '../../services/nominatimService';
 
 interface POIFormProps {
   activeTrip: Trip;
   editingPoiId: string | null;
-  onSaveTrip: (trip: Trip) => Promise<string>;
-  onSetActiveTrip: (trip: Trip) => void;
   onAddPOI: (tripId: string, poi: POI) => Promise<string>;
   onUpdatePOI: (tripId: string, poiId: string, updates: Partial<POI>) => Promise<string>;
   onError: (msg: string) => void;
@@ -25,8 +23,6 @@ const categoryLabels: Record<POICategory | 'waypoint', string> = {
 export default function POIForm({
   activeTrip,
   editingPoiId,
-  onSaveTrip,
-  onSetActiveTrip,
   onAddPOI,
   onUpdatePOI,
   onError,
@@ -57,12 +53,12 @@ export default function POIForm({
 
     setIsGeocodingLoading(true);
     try {
-      const result = await nominatimService.geocodeLocation(formData.locationName);
+      const result = await geocodeLocation(formData.locationName);
       if (result) {
         setFormData(prev => ({
           ...prev,
-          latitude: result.lat.toString(),
-          longitude: result.lon.toString(),
+          latitude: result.latitude.toString(),
+          longitude: result.longitude.toString(),
         }));
         onSuccess('מיקום חוקי נמצא!');
       } else {

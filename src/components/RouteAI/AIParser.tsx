@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import type { Trip, Day, POI } from '../../types/routes';
-import apiClient from '../../services/apiClient';
+import type { Trip, POI } from '../../types/routes';
+import { parseRouteWithAI } from '../../services/apiClient';
 
 interface AIParserProps {
   activeTrip: Trip;
@@ -30,16 +30,16 @@ export default function AIParser({
 
     setIsLoading(true);
     try {
-      const result = await apiClient.parseRouteWithAI(inputText);
+      const result = await parseRouteWithAI({ text: inputText });
 
       // Create new trip with AI-parsed data
-      const newDays: Day[] = (result.days || []).map((day, idx) => ({
+      const newDays = (result.days || []).map((day: any, idx: number) => ({
         dayNumber: idx + 1,
         title: day.title || `יום ${idx + 1}`,
         description: day.description || '',
       }));
 
-      const newPois: POI[] = (result.pois || []).map((poi) => ({
+      const newPois: POI[] = (result.pois || []).map((poi: any) => ({
         id: Math.random().toString(36).substr(2, 9),
         name: poi.name,
         description: poi.description || '',

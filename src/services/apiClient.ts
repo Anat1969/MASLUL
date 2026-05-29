@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { GeminiParseResponse } from '../types/routes';
+import type { GeminiParseResponse } from '../types/routes';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 

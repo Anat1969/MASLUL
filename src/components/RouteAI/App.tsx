@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
-import type L from 'leaflet';
-import { Trip, POI, Day } from '../../types/routes';
+import type { Map as LeafletMap } from 'leaflet';
+import type { Trip } from '../../types/routes';
 import { useTrips } from '../../hooks/useTrips';
 import Sidebar from './Sidebar';
 import Map from './Map';
@@ -50,20 +50,19 @@ const DEFAULT_TRIP: Trip = {
 };
 
 export default function RouteAIApp() {
-  const { trips, isLoading, saveTrip, deleteTrip, updateTrip, addPOIToTrip, updatePOI, removePOI } = useTrips([DEFAULT_TRIP]);
+  const { trips, isLoading, saveTrip, deleteTrip, addPOIToTrip, updatePOI, removePOI } = useTrips([DEFAULT_TRIP]);
 
   const [activeTrip, setActiveTrip] = useState<Trip | null>(null);
   const [activeDayFilter, setActiveDayFilter] = useState(0);
   const [activeCategoryFilter, setActiveCategoryFilter] = useState<'all' | 'hotel' | 'restaurant' | 'attraction' | 'waypoint'>('all');
 
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [mobileActiveView, setMobileActiveView] = useState<'journal' | 'map'>('journal');
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
 
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
 
-  const mapInstanceRef = useRef<L.Map | null>(null);
+  const mapInstanceRef = useRef<LeafletMap | null>(null);
 
   // Set active trip on load
   useEffect(() => {
@@ -120,7 +119,6 @@ export default function RouteAIApp() {
         trips={trips}
         activeDayFilter={activeDayFilter}
         activeCategoryFilter={activeCategoryFilter}
-        isSidebarCollapsed={isSidebarCollapsed}
         mobileActiveView={mobileActiveView}
         isLibraryOpen={isLibraryOpen}
         errorMsg={errorMsg}
@@ -129,13 +127,11 @@ export default function RouteAIApp() {
         onSetActiveTrip={setActiveTrip}
         onSetActiveDayFilter={setActiveDayFilter}
         onSetActiveCategoryFilter={setActiveCategoryFilter}
-        onSetSidebarCollapsed={setIsSidebarCollapsed}
         onSetLibraryOpen={setIsLibraryOpen}
         onClearError={() => setErrorMsg('')}
         onClearSuccess={() => setSuccessMsg('')}
         onDeleteTrip={handleDeleteTrip}
         onSaveTrip={saveTrip}
-        onUpdateTrip={updateTrip}
         onAddPOI={addPOIToTrip}
         onUpdatePOI={updatePOI}
         onRemovePOI={removePOI}
@@ -151,7 +147,6 @@ export default function RouteAIApp() {
           activeDayFilter={activeDayFilter}
           activeCategoryFilter={activeCategoryFilter}
           mapInstanceRef={mapInstanceRef}
-          onPoiFocus={() => setMobileActiveView('map')}
         />
       </main>
 
