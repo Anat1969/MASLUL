@@ -1,38 +1,37 @@
 import express from 'express';
 import cors from 'cors';
-import axios from 'axios';
 import dotenv from 'dotenv';
+import Anthropic from '@anthropic-ai/sdk';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const CLAUDE_API_KEY = process.env.CLAUDE_API_KEY;
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
-// Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Gemini API proxy endpoint
 app.post('/api/gemini/parse', async (req, res) => {
   try {
-    const { text, language = 'he' } = req.body;
+    const { text } = req.body;
 
     if (!text || typeof text !== 'string' || text.trim().length === 0) {
       return res.status(400).json({ error: 'Text input is required' });
     }
 
-    if (!GEMINI_API_KEY) {
-      console.error('GEMINI_API_KEY is not configured');
+    if (!CLAUDE_API_KEY) {
+      console.error('CLAUDE_API_KEY is not configured');
       return res.status(500).json({ error: 'Server configuration error' });
     }
 
-    const systemPrompt = `
-אתה משורר קרטוגרפי ומנתח תיירות מעמיק.
+    const anthropic = new Anthropic({ apiKey: CLAUDE_API_KEY });
+
+    const systemPrompt = `אתה משורר קרטוגרפי ומנתח תיירות מעמיק.
 עליך לקבל טקסט חופשי (עברית/אנגלית) המתאר טיול, ולנתח אותו לתוך מבנה נתונים קרטוגרפי מושלם לפי ימים ונקודות עניין (POIs).
 
 חוקים קריטיים:
@@ -59,31 +58,29 @@ app.post('/api/gemini/parse', async (req, res) => {
             "description": "תיאור קצר, פואטי ושימושי של הנקודה"
         }
     ]
-}
-`;
+}`;
 
-    const response = await axios.post(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        contents: [{ parts: [{ text }] }],
-        systemInstruction: { parts: [{ text: systemPrompt }] },
-        generationConfig: { responseMimeType: 'application/json' },
-      }
-    );
+    const message = await anthropic.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 4096,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: text }],
+    });
 
-    const responseText = response.data.candidates?.[0]?.content?.parts?.[0]?.text;
+    const responseText = message.content[0].type === 'text' ? message.content[0].text : '';
     if (!responseText) {
-      throw new Error('No response from Gemini API');
+      throw new Error('No response from Claude API');
     }
 
-    const parsedData = JSON.parse(responseText);
+    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('Invalid JSON response from AI');
 
-    // Validate response structure
+    const parsedData = JSON.parse(jsonMatch[0]);
+
     if (!parsedData.title || !parsedData.description || !Array.isArray(parsedData.days) || !Array.isArray(parsedData.pois)) {
       throw new Error('Invalid response structure from AI');
     }
 
-    // Add IDs to POIs
     const poisWithIds = parsedData.pois.map((poi, idx) => ({
       ...poi,
       id: `poi-ai-${idx}-${Date.now()}`,
@@ -100,12 +97,8 @@ app.post('/api/gemini/parse', async (req, res) => {
   } catch (error) {
     console.error('Error processing request:', error);
 
-    if (error.response?.status === 429) {
+    if (error.status === 429) {
       return res.status(429).json({ error: 'Too many requests. Please try again later.' });
-    }
-
-    if (error.response?.status === 403) {
-      return res.status(403).json({ error: 'Invalid API key or access denied' });
     }
 
     res.status(500).json({
@@ -117,5 +110,5 @@ app.post('/api/gemini/parse', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 RouteAI Backend server running on port ${PORT}`);
   console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🔑 Gemini API configured: ${GEMINI_API_KEY ? 'yes' : 'NO'}`);
+  console.log(`🔑 Claude API configured: ${CLAUDE_API_KEY ? 'yes' : 'NO'}`);
 });
