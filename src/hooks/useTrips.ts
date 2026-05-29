@@ -11,9 +11,19 @@ export function useTrips(initialTrips?: Trip[]) {
     const loadTrips = async () => {
       try {
         const savedTrips = await storageService.getAllTrips();
-        setTrips(savedTrips);
+        if (savedTrips.length > 0) {
+          setTrips(savedTrips);
+        } else if (initialTrips && initialTrips.length > 0) {
+          for (const trip of initialTrips) {
+            await storageService.saveTrip(trip);
+          }
+          setTrips(initialTrips);
+        }
       } catch (error) {
         console.error('Failed to load trips:', error);
+        if (initialTrips && initialTrips.length > 0) {
+          setTrips(initialTrips);
+        }
       } finally {
         setIsLoading(false);
       }
