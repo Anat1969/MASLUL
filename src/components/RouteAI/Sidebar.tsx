@@ -6,6 +6,15 @@ import AIParser from './AIParser';
 import POIForm from './POIForm';
 import TripLibrary from './TripLibrary';
 
+declare module 'react' {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace JSX {
+    interface IntrinsicElements {
+      'ai-menu': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & { chat?: string; research?: string };
+    }
+  }
+}
+
 interface SidebarProps {
   activeTrip: Trip;
   trips: Trip[];
@@ -93,6 +102,7 @@ export default function Sidebar({
               </svg>
               <span>ארכיון ({trips.length})</span>
             </button>
+            <ai-menu />
           </div>
         </div>
 
