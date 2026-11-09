@@ -2,6 +2,8 @@ import { useState } from 'react';
 import type { Trip, POI, POICategory } from '../../types/routes';
 import { geocodeLocation } from '../../services/nominatimService';
 
+const createPoiId = () => Math.random().toString(36).substr(2, 9);
+
 interface POIFormProps {
   activeTrip: Trip;
   editingPoiId: string | null;
@@ -88,7 +90,7 @@ export default function POIForm({
     setIsSubmitting(true);
     try {
       const poi: POI = {
-        id: editingPoiId || Math.random().toString(36).substr(2, 9),
+        id: editingPoiId || createPoiId(),
         name: formData.name,
         description: formData.description,
         category: formData.category,

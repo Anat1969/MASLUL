@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import type { Map as LeafletMap } from 'leaflet';
 import type { Trip } from '../../types/routes';
 import { useTrips } from '../../hooks/useTrips';
@@ -64,12 +64,10 @@ export default function RouteAIApp() {
 
   const mapInstanceRef = useRef<LeafletMap | null>(null);
 
-  // Set active trip on load
-  useEffect(() => {
-    if (!isLoading && trips.length > 0 && !activeTrip) {
-      setActiveTrip(trips[0]);
-    }
-  }, [isLoading, trips, activeTrip]);
+  // Set active trip on load (adjust state during render, not in an effect)
+  if (!isLoading && trips.length > 0 && !activeTrip) {
+    setActiveTrip(trips[0]);
+  }
 
   const handleDeleteTrip = async (tripId: string) => {
     if (confirm('האם אתה בטוח שברצונך למחוק את המסע הזה?')) {
@@ -79,7 +77,7 @@ export default function RouteAIApp() {
           setActiveTrip(trips[0] || null);
         }
         setSuccessMsg('המסע נמחק בהצלחה.');
-      } catch (error) {
+      } catch {
         setErrorMsg('שגיאה בעת מחיקת המסע.');
       }
     }

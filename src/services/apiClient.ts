@@ -26,7 +26,8 @@ export async function parseRouteWithAI(
     if (axios.isAxiosError(error)) {
       throw new Error(
         error.response?.data?.error ||
-        `Failed to parse route: ${error.message}`
+        `Failed to parse route: ${error.message}`,
+        { cause: error }
       );
     }
     throw error;
