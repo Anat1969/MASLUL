@@ -30,7 +30,7 @@ export async function geocodeLocation(
     return null;
   } catch (error) {
     console.error('Geocoding error:', error);
-    throw new Error('Failed to geocode location');
+    throw new Error('Failed to geocode location', { cause: error });
   }
 }
 

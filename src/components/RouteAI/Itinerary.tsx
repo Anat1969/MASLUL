@@ -39,7 +39,7 @@ export default function Itinerary({
   const handleDeletePoi = async (poiId: string) => {
     try {
       await onRemovePOI(activeTrip.id, poiId);
-    } catch (error) {
+    } catch {
       onError('שגיאה בעת מחיקת היעד.');
     }
   };
